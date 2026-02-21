@@ -6,20 +6,15 @@
 <title>Колесо Баланса</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
-  *, *::before, *::after {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
     --bg: #0a0a0a;
     --card: #1a1a1a;
     --card-2: #222222;
     --accent: #e63946;
-    --accent-dim: rgba(230, 57, 70, 0.15);
+    --accent-dim: rgba(230,57,70,0.15);
     --text: #ffffff;
     --text-secondary: #888888;
     --border: rgba(255,255,255,0.07);
@@ -43,40 +38,37 @@
     min-height: 100vh;
   }
 
-  /* LEFT PANEL */
-  .left-panel {
+  .left-col {
     width: 40%;
-    min-width: 320px;
+    min-width: 300px;
     background: var(--card);
     border-right: 1px solid var(--border);
     display: flex;
     flex-direction: column;
-    padding: 32px 28px 100px;
     overflow-y: auto;
-    position: relative;
   }
 
-  /* RIGHT PANEL */
-  .right-panel {
+  .right-col {
     flex: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 32px 28px 32px;
     overflow-y: auto;
   }
 
-  /* ─── HEADER ─────────────────────────────────────── */
-  .header {
-    margin-bottom: 28px;
-  }
+  .s-header { padding: 32px 28px 20px; }
+  .s-form   { padding: 0 28px; flex: 1; }
+  .s-stats  { padding: 0 28px 16px; }
+  .s-btn    { padding: 0 28px 32px; }
+  .s-chart  { padding: 32px 28px; width: 100%; display: flex; flex-direction: column; align-items: center; }
 
+  /* ─── HEADER ─────────────────────────────────────── */
   .header-label {
     display: inline-flex;
     align-items: center;
     gap: 6px;
     background: var(--accent-dim);
-    border: 1px solid rgba(230, 57, 70, 0.3);
+    border: 1px solid rgba(230,57,70,0.3);
     color: var(--accent);
     font-size: 11px;
     font-weight: 600;
@@ -89,8 +81,7 @@
 
   .header-label::before {
     content: '';
-    width: 6px;
-    height: 6px;
+    width: 6px; height: 6px;
     border-radius: 50%;
     background: var(--accent);
     animation: pulse 2s infinite;
@@ -109,9 +100,7 @@
     margin-bottom: 6px;
   }
 
-  .header h1 span {
-    color: var(--accent);
-  }
+  .header h1 span { color: var(--accent); }
 
   .header p {
     color: var(--text-secondary);
@@ -124,26 +113,34 @@
     display: flex;
     flex-direction: column;
     gap: 4px;
-    margin-bottom: 24px;
+    margin-bottom: 20px;
   }
 
   .category-item {
     background: var(--card-2);
     border: 1px solid var(--border);
     border-radius: var(--radius-sm);
-    padding: 12px 14px;
+    overflow: hidden;
     transition: border-color 0.2s;
   }
 
   .category-item:hover {
-    border-color: rgba(230, 57, 70, 0.3);
+    border-color: rgba(230,57,70,0.3);
   }
 
-  .category-top {
+  .category-item.open {
+    border-color: rgba(230,57,70,0.35);
+  }
+
+  /* Clickable header row */
+  .category-header {
     display: flex;
     align-items: center;
-    gap: 8px;
-    margin-bottom: 10px;
+    gap: 10px;
+    padding: 11px 14px 0;
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
   }
 
   .category-emoji {
@@ -152,17 +149,64 @@
     flex-shrink: 0;
   }
 
-  .category-name {
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--text);
+  .category-title-wrap {
     flex: 1;
+    min-width: 0;
   }
 
+  .category-name {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: 0.04em;
+    display: block;
+    line-height: 1.2;
+  }
+
+  .category-sub {
+    font-size: 11px;
+    color: var(--text-secondary);
+    display: block;
+    margin-top: 1px;
+  }
+
+  .chevron {
+    width: 16px;
+    height: 16px;
+    color: var(--text-secondary);
+    transition: transform 0.3s ease, color 0.2s;
+    flex-shrink: 0;
+  }
+
+  .category-item.open .chevron {
+    transform: rotate(90deg);
+    color: var(--accent);
+  }
+
+  /* Accordion description */
+  .category-desc {
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: max-height 0.35s ease, opacity 0.25s ease, padding 0.25s ease;
+    padding: 0 14px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+  }
+
+  .category-item.open .category-desc {
+    max-height: 100px;
+    opacity: 1;
+    padding: 8px 14px 2px;
+  }
+
+  /* Controls row */
   .category-controls {
     display: flex;
     align-items: center;
     gap: 10px;
+    padding: 10px 14px 12px;
   }
 
   /* Slider */
@@ -171,38 +215,41 @@
     appearance: none;
     flex: 1;
     height: 4px;
-    background: rgba(255,255,255,0.1);
     border-radius: 100px;
     outline: none;
     cursor: pointer;
-    position: relative;
+    background: linear-gradient(
+      to right,
+      var(--accent) 0%,
+      var(--accent) var(--val, 44.4%),
+      rgba(255,255,255,0.1) var(--val, 44.4%),
+      rgba(255,255,255,0.1) 100%
+    );
   }
 
   input[type="range"]::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
-    width: 18px;
-    height: 18px;
+    width: 18px; height: 18px;
     border-radius: 50%;
     background: var(--accent);
     cursor: pointer;
-    box-shadow: 0 0 0 3px rgba(230, 57, 70, 0.2);
+    box-shadow: 0 0 0 3px rgba(230,57,70,0.2);
     transition: box-shadow 0.2s, transform 0.15s;
   }
 
   input[type="range"]::-webkit-slider-thumb:hover {
-    box-shadow: 0 0 0 5px rgba(230, 57, 70, 0.25);
+    box-shadow: 0 0 0 5px rgba(230,57,70,0.25);
     transform: scale(1.1);
   }
 
   input[type="range"]::-moz-range-thumb {
-    width: 18px;
-    height: 18px;
+    width: 18px; height: 18px;
     border-radius: 50%;
     background: var(--accent);
     cursor: pointer;
     border: none;
-    box-shadow: 0 0 0 3px rgba(230, 57, 70, 0.2);
+    box-shadow: 0 0 0 3px rgba(230,57,70,0.2);
   }
 
   input[type="range"]::-moz-range-track {
@@ -213,8 +260,7 @@
 
   /* Number input */
   .num-input {
-    width: 44px;
-    height: 36px;
+    width: 44px; height: 36px;
     background: var(--card);
     border: 1px solid var(--border);
     border-radius: var(--radius-sm);
@@ -230,31 +276,25 @@
   }
 
   .num-input::-webkit-outer-spin-button,
-  .num-input::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-  }
+  .num-input::-webkit-inner-spin-button { -webkit-appearance: none; }
 
   .num-input:focus {
     border-color: var(--accent);
-    box-shadow: 0 0 0 2px rgba(230, 57, 70, 0.15);
+    box-shadow: 0 0 0 2px rgba(230,57,70,0.15);
   }
 
   /* ─── STATS CARD ─────────────────────────────────── */
   .stats-card {
     background: linear-gradient(135deg, rgba(230,57,70,0.1) 0%, rgba(230,57,70,0.03) 100%);
-    border: 1px solid rgba(230, 57, 70, 0.25);
+    border: 1px solid rgba(230,57,70,0.25);
     border-radius: var(--radius);
     padding: 16px 18px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 16px;
   }
 
-  .stats-label {
-    color: var(--text-secondary);
-    font-size: 13px;
-  }
+  .stats-label { color: var(--text-secondary); font-size: 13px; }
 
   .stats-value {
     font-size: 28px;
@@ -287,25 +327,18 @@
     justify-content: center;
     gap: 8px;
     transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
-    box-shadow: 0 4px 20px rgba(230, 57, 70, 0.3);
+    box-shadow: 0 4px 20px rgba(230,57,70,0.3);
   }
 
   .btn-pdf:hover {
     background: #c1121f;
-    box-shadow: 0 6px 28px rgba(230, 57, 70, 0.45);
+    box-shadow: 0 6px 28px rgba(230,57,70,0.45);
     transform: translateY(-1px);
   }
 
-  .btn-pdf:active {
-    transform: translateY(0);
-  }
+  .btn-pdf:active { transform: translateY(0); }
 
-  .btn-pdf.loading {
-    opacity: 0.7;
-    pointer-events: none;
-  }
-
-  /* ─── RIGHT PANEL ────────────────────────────────── */
+  /* ─── CHART SECTION ──────────────────────────────── */
   .chart-header {
     width: 100%;
     max-width: 560px;
@@ -319,10 +352,7 @@
     margin-bottom: 4px;
   }
 
-  .chart-subtitle {
-    color: var(--text-secondary);
-    font-size: 13px;
-  }
+  .chart-subtitle { color: var(--text-secondary); font-size: 13px; }
 
   .canvas-wrap {
     width: 100%;
@@ -331,11 +361,7 @@
     position: relative;
   }
 
-  #radar {
-    width: 100%;
-    height: 100%;
-    display: block;
-  }
+  #radar { width: 100%; height: 100%; display: block; }
 
   /* ─── INSIGHT CARDS ──────────────────────────────── */
   .insights {
@@ -356,35 +382,11 @@
     transition: border-color 0.2s;
   }
 
-  .insight-card:hover {
-    border-color: rgba(230, 57, 70, 0.3);
-  }
-
-  .insight-icon {
-    font-size: 20px;
-    margin-bottom: 6px;
-  }
-
-  .insight-label {
-    color: var(--text-secondary);
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    margin-bottom: 4px;
-  }
-
-  .insight-value {
-    font-size: 15px;
-    font-weight: 700;
-    color: var(--text);
-    line-height: 1.2;
-  }
-
-  .insight-sub {
-    font-size: 11px;
-    color: var(--text-secondary);
-    margin-top: 2px;
-  }
+  .insight-card:hover { border-color: rgba(230,57,70,0.3); }
+  .insight-icon { font-size: 20px; margin-bottom: 6px; }
+  .insight-label { color: var(--text-secondary); font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
+  .insight-value { font-size: 14px; font-weight: 700; color: var(--text); line-height: 1.2; }
+  .insight-sub { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
 
   /* ─── SCROLLBAR ──────────────────────────────────── */
   ::-webkit-scrollbar { width: 4px; }
@@ -392,102 +394,67 @@
   ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
   ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
 
-  /* ─── RESPONSIVE ─────────────────────────────────── */
+  /* ─── TABLET ─────────────────────────────────────── */
   @media (min-width: 768px) and (max-width: 1023px) {
-    .left-panel { width: 45%; padding: 24px 20px 90px; }
-    .right-panel { padding: 24px 16px; }
-    .insights { grid-template-columns: repeat(3, 1fr); }
+    .left-col { width: 45%; }
+    .s-header { padding: 24px 20px 16px; }
+    .s-form   { padding: 0 20px; }
+    .s-stats  { padding: 0 20px 14px; }
+    .s-btn    { padding: 0 20px 24px; }
+    .s-chart  { padding: 24px 16px; }
   }
 
+  /* ─── MOBILE ─────────────────────────────────────── */
   @media (max-width: 767px) {
-    .app {
-      flex-direction: column;
+    /* Flatten columns: children flow directly into .app */
+    .app { flex-direction: column; }
+    .left-col  { display: contents; }
+    .right-col { display: contents; }
+
+    /* Reorder sections */
+    .s-header { order: 1; background: var(--card); border-bottom: 1px solid var(--border); padding: 20px 16px 16px; }
+    .s-chart  { order: 2; padding: 20px 16px; }
+    .s-form   { order: 3; background: var(--card); border-top: 1px solid var(--border); padding: 16px 16px 0; }
+    .s-stats  { order: 4; background: var(--card); padding: 12px 16px; }
+    .s-btn    {
+      order: 5;
+      background: var(--card);
+      padding: 0 16px calc(16px + env(safe-area-inset-bottom));
+      position: sticky;
+      bottom: 0;
+      border-top: 1px solid var(--border);
+      padding-top: 12px;
+      z-index: 50;
     }
 
-    .left-panel {
-      width: 100%;
-      min-width: unset;
-      border-right: none;
-      border-bottom: 1px solid var(--border);
-      padding: 20px 16px 96px;
-    }
+    /* Slider touch targets */
+    input[type="range"] { height: 6px; }
+    input[type="range"]::-webkit-slider-thumb { width: 22px; height: 22px; }
+    input[type="range"]::-moz-range-thumb { width: 22px; height: 22px; }
 
-    .right-panel {
-      padding: 20px 16px 24px;
-    }
+    .num-input { width: 48px; height: 44px; font-size: 15px; }
 
-    .category-name {
-      font-size: 14px;
-    }
+    .canvas-wrap { max-width: 90vw; }
 
-    .category-item {
-      padding: 10px 12px;
-    }
-
-    input[type="range"] {
-      height: 6px;
-    }
-
-    input[type="range"]::-webkit-slider-thumb {
-      width: 22px;
-      height: 22px;
-    }
-
-    input[type="range"]::-moz-range-thumb {
-      width: 22px;
-      height: 22px;
-    }
-
-    .num-input {
-      width: 48px;
-      height: 44px;
-      font-size: 15px;
-    }
-
-    .canvas-wrap {
-      max-width: 90vw;
-    }
-
-    .insights {
-      grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
-    }
-
-    .insight-card {
-      padding: 10px 8px;
-    }
-
+    .insights { gap: 8px; }
+    .insight-card { padding: 10px 8px; }
     .insight-icon { font-size: 18px; }
     .insight-value { font-size: 13px; }
 
-    /* Fixed PDF button on mobile */
-    .btn-pdf-wrap {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      padding: 12px 16px;
-      padding-bottom: calc(12px + env(safe-area-inset-bottom));
-      background: linear-gradient(to top, #0a0a0a 60%, transparent);
-      z-index: 100;
-    }
+    .category-name { font-size: 11px; }
+    .category-sub  { font-size: 10px; }
   }
 
   @media (max-width: 400px) {
-    .insights {
-      grid-template-columns: 1fr;
-    }
+    .insights { grid-template-columns: 1fr; }
   }
 
-  /* ─── SLIDER FILL TRICK ──────────────────────────── */
-  input[type="range"] {
-    background: linear-gradient(
-      to right,
-      var(--accent) 0%,
-      var(--accent) var(--val, 40%),
-      rgba(255,255,255,0.1) var(--val, 40%),
-      rgba(255,255,255,0.1) 100%
-    );
+  /* ─── PRINT ──────────────────────────────────────── */
+  @media print {
+    body { background: white; color: black; }
+    .left-col { width: 100%; }
+    .right-col { width: 100%; page-break-before: always; }
+    button { display: none; }
   }
 </style>
 </head>
@@ -495,31 +462,37 @@
 
 <div class="app" id="app">
 
-  <!-- ═══════════ LEFT PANEL ═══════════ -->
-  <div class="left-panel" id="leftPanel">
+  <!-- ════ LEFT COL ════ -->
+  <div class="left-col">
 
-    <div class="header">
-      <div class="header-label">Коучинг-инструмент</div>
-      <h1>Колесо <span>Баланса</span></h1>
-      <p>Оцените каждую сферу жизни от 1 до 10 и увидьте полную картину своего баланса</p>
-    </div>
-
-    <div class="categories" id="categories">
-      <!-- dynamically rendered -->
-    </div>
-
-    <div class="stats-card">
-      <div>
-        <div class="stats-label">Средний балл</div>
-        <div style="color: var(--text-secondary); font-size: 11px; margin-top: 2px;">по всем сферам</div>
+    <!-- 1. Header -->
+    <div class="s-header">
+      <div class="header">
+        <div class="header-label">Коучинг-инструмент</div>
+        <h1>Колесо <span>Баланса</span></h1>
+        <p>Оцените каждую эру жизни от 1 до 10 и увидьте полную картину своего баланса</p>
       </div>
-      <div>
+    </div>
+
+    <!-- 2. Form -->
+    <div class="s-form">
+      <div class="categories" id="categories"><!-- js --></div>
+    </div>
+
+    <!-- 3. Stats -->
+    <div class="s-stats">
+      <div class="stats-card">
+        <div>
+          <div class="stats-label">Средний балл</div>
+          <div style="color:var(--text-secondary);font-size:11px;margin-top:2px;">по всем эрам</div>
+        </div>
         <div class="stats-value" id="avgScore">5.0<span>/10</span></div>
       </div>
     </div>
 
-    <div class="btn-pdf-wrap">
-      <button class="btn-pdf" id="btnPdf" onclick="exportPDF()">
+    <!-- 4. Button -->
+    <div class="s-btn">
+      <button class="btn-pdf" onclick="window.print()">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
           <polyline points="7 10 12 15 17 10"/>
@@ -529,108 +502,170 @@
       </button>
     </div>
 
-  </div>
+  </div><!-- /left-col -->
 
-  <!-- ═══════════ RIGHT PANEL ═══════════ -->
-  <div class="right-panel" id="rightPanel">
+  <!-- ════ RIGHT COL ════ -->
+  <div class="right-col">
+    <div class="s-chart">
 
-    <div class="chart-header">
-      <div class="chart-title">Радар Баланса</div>
-      <div class="chart-subtitle">Визуализация распределения по сферам жизни</div>
-    </div>
-
-    <div class="canvas-wrap" id="canvasWrap">
-      <canvas id="radar"></canvas>
-    </div>
-
-    <div class="insights" id="insights">
-      <div class="insight-card">
-        <div class="insight-icon">🏆</div>
-        <div class="insight-label">Сильнейшая</div>
-        <div class="insight-value" id="insightStrong">—</div>
-        <div class="insight-sub" id="insightStrongScore"></div>
+      <div class="chart-header">
+        <div class="chart-title">Радар Баланса</div>
+        <div class="chart-subtitle">Визуализация распределения по эрам жизни</div>
       </div>
-      <div class="insight-card">
-        <div class="insight-icon">⚠️</div>
-        <div class="insight-label">Зона роста</div>
-        <div class="insight-value" id="insightWeak">—</div>
-        <div class="insight-sub" id="insightWeakScore"></div>
+
+      <div class="canvas-wrap" id="canvasWrap">
+        <canvas id="radar"></canvas>
       </div>
-      <div class="insight-card">
-        <div class="insight-icon">📊</div>
-        <div class="insight-label">Баланс</div>
-        <div class="insight-value" id="insightBalance">—</div>
-        <div class="insight-sub">равномерность</div>
+
+      <div class="insights" id="insights">
+        <div class="insight-card">
+          <div class="insight-icon">🏆</div>
+          <div class="insight-label">Сильнейшая</div>
+          <div class="insight-value" id="insightStrong">—</div>
+          <div class="insight-sub" id="insightStrongScore"></div>
+        </div>
+        <div class="insight-card">
+          <div class="insight-icon">⚠️</div>
+          <div class="insight-label">Зона роста</div>
+          <div class="insight-value" id="insightWeak">—</div>
+          <div class="insight-sub" id="insightWeakScore"></div>
+        </div>
+        <div class="insight-card">
+          <div class="insight-icon">📊</div>
+          <div class="insight-label">Баланс</div>
+          <div class="insight-value" id="insightBalance">—</div>
+          <div class="insight-sub">равномерность</div>
+        </div>
       </div>
+
     </div>
+  </div><!-- /right-col -->
 
-  </div>
-
-</div>
+</div><!-- /app -->
 
 <script>
-// ─── DATA ────────────────────────────────────────────────────────────────────
+// ─── DATA ─────────────────────────────────────────────────────────────────────
 const CATEGORIES = [
-  { id: 'career',    emoji: '💼', name: 'Карьера и Бизнес' },
-  { id: 'finance',   emoji: '💰', name: 'Финансы' },
-  { id: 'relations', emoji: '❤️', name: 'Отношения' },
-  { id: 'health',    emoji: '🏋️', name: 'Здоровье и Спорт' },
-  { id: 'growth',    emoji: '🎯', name: 'Личностный рост' },
-  { id: 'rest',      emoji: '🎉', name: 'Отдых и Хобби' },
-  { id: 'family',    emoji: '👨‍👩‍👧', name: 'Семья' },
-  { id: 'social',    emoji: '🌍', name: 'Окружение и Друзья' },
+  {
+    id: 'energy',
+    emoji: '🏋️',
+    name: 'ЭРА ЭНЕРГИИ',
+    sub: 'Здоровье, Спорт, Витальность',
+    desc: 'Твоя физическая сила, энергия тела и жизненный тонус. Это фундамент, на котором строится всё остальное.',
+  },
+  {
+    id: 'closeness',
+    emoji: '❤️',
+    name: 'ЭРА БЛИЗОСТИ',
+    sub: 'Отношения, Семья, Любовь',
+    desc: 'Глубина и качество твоих самых важных отношений. Любовь, тепло и поддержка близких людей.',
+  },
+  {
+    id: 'social',
+    emoji: '🌍',
+    name: 'ЭРА СВЯЗЕЙ',
+    sub: 'Окружение, Друзья, Нетворкинг',
+    desc: 'Люди вокруг тебя — твоё окружение формирует тебя. Качество связей определяет качество жизни.',
+  },
+  {
+    id: 'career',
+    emoji: '💼',
+    name: 'ЭРА РЕАЛИЗАЦИИ',
+    sub: 'Карьера, Бизнес, Дело',
+    desc: 'Твоё призвание и вклад в мир. То, что ты создаёшь и строишь каждый день.',
+  },
+  {
+    id: 'finance',
+    emoji: '💰',
+    name: 'ЭРА ФИНАНСОВ',
+    sub: 'Деньги, Инвестиции',
+    desc: 'Финансовая свобода и уверенность в завтрашнем дне. Деньги как инструмент твоей жизни.',
+  },
+  {
+    id: 'growth',
+    emoji: '🎯',
+    name: 'ЭРА ЛИЧНОСТИ',
+    sub: 'Личностный рост, Самооценка, Психология',
+    desc: 'Твоё внутреннее развитие, понимание себя и работа над мышлением.',
+  },
+  {
+    id: 'rest',
+    emoji: '🎉',
+    name: 'ЭРА ВПЕЧАТЛЕНИЙ',
+    sub: 'Яркость жизни, Хобби, Путешествия',
+    desc: 'Радость, приключения и яркие моменты. То, ради чего хочется просыпаться утром.',
+  },
+  {
+    id: 'meaning',
+    emoji: '👨‍👩‍👧',
+    name: 'ЭРА СМЫСЛОВ',
+    sub: 'Духовность, Творчество, Миссия',
+    desc: 'Твоя глубина и предназначение. Связь с чем-то большим, чем повседневное.',
+  },
 ];
 
-const LS_KEY = 'wheel_balance_v1';
+const LS_KEY = 'wheel_balance_v2';
 
-// ─── STATE ───────────────────────────────────────────────────────────────────
-let values = {};
-let animTarget = {};
+// ─── STATE ────────────────────────────────────────────────────────────────────
+let values     = {};
+let animTarget  = {};
 let animCurrent = {};
-let animFrame = null;
+let animFrame   = null;
 
+// ─── LOCALSTORAGE ─────────────────────────────────────────────────────────────
 function loadValues() {
   const defaults = {};
-  CATEGORIES.forEach(c => defaults[c.id] = 5);
+  CATEGORIES.forEach(c => (defaults[c.id] = 5));
   try {
     const saved = localStorage.getItem(LS_KEY);
     if (saved) {
       const parsed = JSON.parse(saved);
       CATEGORIES.forEach(c => {
         const v = parseInt(parsed[c.id]);
-        defaults[c.id] = (!isNaN(v) && v >= 1 && v <= 10) ? v : 5;
+        defaults[c.id] = !isNaN(v) && v >= 1 && v <= 10 ? v : 5;
       });
     }
-  } catch(e) {}
+  } catch (e) {}
   return defaults;
 }
 
 function saveValues() {
-  try {
-    localStorage.setItem(LS_KEY, JSON.stringify(values));
-  } catch(e) {}
+  try { localStorage.setItem(LS_KEY, JSON.stringify(values)); } catch (e) {}
 }
 
-// ─── RENDER FORM ─────────────────────────────────────────────────────────────
+// ─── ACCORDION ────────────────────────────────────────────────────────────────
+function toggleAccordion(item) {
+  item.classList.toggle('open');
+}
+
+// ─── BUILD FORM ───────────────────────────────────────────────────────────────
 function buildForm() {
   const container = document.getElementById('categories');
   container.innerHTML = '';
 
   CATEGORIES.forEach(cat => {
     const val = values[cat.id];
-    const pct = ((val - 1) / 9 * 100).toFixed(1);
+    const pct = pctFromVal(val);
 
     const item = document.createElement('div');
     item.className = 'category-item';
+    item.dataset.id = cat.id;
+
     item.innerHTML = `
-      <div class="category-top">
+      <div class="category-header">
         <span class="category-emoji">${cat.emoji}</span>
-        <span class="category-name">${cat.name}</span>
+        <div class="category-title-wrap">
+          <span class="category-name">${cat.name}</span>
+          <span class="category-sub">${cat.sub}</span>
+        </div>
+        <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="9 18 15 12 9 6"/>
+        </svg>
       </div>
+      <div class="category-desc">${cat.desc}</div>
       <div class="category-controls">
         <input
-          type="range"
-          min="1" max="10" step="1"
+          type="range" min="1" max="10" step="1"
           value="${val}"
           style="--val: ${pct}%"
           data-id="${cat.id}"
@@ -638,8 +673,7 @@ function buildForm() {
           aria-label="${cat.name}"
         >
         <input
-          type="number"
-          min="1" max="10"
+          type="number" min="1" max="10"
           value="${val}"
           data-id="${cat.id}"
           class="num-input"
@@ -647,111 +681,111 @@ function buildForm() {
         >
       </div>
     `;
-    container.appendChild(item);
-  });
 
-  // Bind events
-  container.querySelectorAll('.slider').forEach(slider => {
-    slider.addEventListener('input', () => {
-      const id = slider.dataset.id;
-      const v = parseInt(slider.value);
-      updateValue(id, v, 'slider');
+    // Accordion toggle — click on header row only
+    item.querySelector('.category-header').addEventListener('click', () => toggleAccordion(item));
+
+    // Slider
+    item.querySelector('.slider').addEventListener('input', e => {
+      updateValue(cat.id, parseInt(e.target.value), 'slider');
     });
-  });
 
-  container.querySelectorAll('.num-input').forEach(input => {
-    input.addEventListener('input', () => {
-      const id = input.dataset.id;
-      let v = parseInt(input.value);
+    // Number input
+    const numInput = item.querySelector('.num-input');
+    numInput.addEventListener('input', () => {
+      let v = parseInt(numInput.value);
       if (isNaN(v)) return;
       v = Math.max(1, Math.min(10, v));
-      updateValue(id, v, 'input');
+      updateValue(cat.id, v, 'input');
     });
-    input.addEventListener('blur', () => {
-      const id = input.dataset.id;
-      let v = parseInt(input.value);
+    numInput.addEventListener('blur', () => {
+      let v = parseInt(numInput.value);
       if (isNaN(v) || v < 1) v = 1;
       if (v > 10) v = 10;
-      input.value = v;
-      updateValue(id, v, 'input');
+      numInput.value = v;
+      updateValue(cat.id, v, 'input');
     });
-    input.addEventListener('keydown', e => {
+    numInput.addEventListener('keydown', e => {
       if (e.key === 'ArrowUp') {
         e.preventDefault();
-        const id = input.dataset.id;
-        const newV = Math.min(10, values[id] + 1);
-        updateValue(id, newV, 'input');
+        updateValue(cat.id, Math.min(10, values[cat.id] + 1), 'input');
       }
       if (e.key === 'ArrowDown') {
         e.preventDefault();
-        const id = input.dataset.id;
-        const newV = Math.max(1, values[id] - 1);
-        updateValue(id, newV, 'input');
+        updateValue(cat.id, Math.max(1, values[cat.id] - 1), 'input');
       }
     });
+
+    container.appendChild(item);
   });
+}
+
+function pctFromVal(v) {
+  return ((v - 1) / 9 * 100).toFixed(1);
 }
 
 function updateValue(id, v, source) {
   values[id] = v;
   saveValues();
 
-  // Sync controls
-  const pct = ((v - 1) / 9 * 100).toFixed(1);
+  const pct = pctFromVal(v) + '%';
+
   if (source !== 'slider') {
     const slider = document.querySelector(`.slider[data-id="${id}"]`);
-    if (slider) { slider.value = v; slider.style.setProperty('--val', pct + '%'); }
+    if (slider) { slider.value = v; slider.style.setProperty('--val', pct); }
   } else {
     const slider = document.querySelector(`.slider[data-id="${id}"]`);
-    if (slider) slider.style.setProperty('--val', pct + '%');
+    if (slider) slider.style.setProperty('--val', pct);
   }
   if (source !== 'input') {
-    const input = document.querySelector(`.num-input[data-id="${id}"]`);
-    if (input) input.value = v;
+    const inp = document.querySelector(`.num-input[data-id="${id}"]`);
+    if (inp) inp.value = v;
   }
 
   updateStats();
   scheduleAnimation();
 }
 
-// ─── STATS ───────────────────────────────────────────────────────────────────
+// ─── STATS ────────────────────────────────────────────────────────────────────
 function updateStats() {
   const vals = CATEGORIES.map(c => values[c.id]);
-  const avg = vals.reduce((a, b) => a + b, 0) / vals.length;
+  const avg  = vals.reduce((a, b) => a + b, 0) / vals.length;
   document.getElementById('avgScore').innerHTML = avg.toFixed(1) + '<span>/10</span>';
 
-  const maxV = Math.max(...vals);
-  const minV = Math.min(...vals);
+  const maxV   = Math.max(...vals);
+  const minV   = Math.min(...vals);
   const maxCat = CATEGORIES[vals.indexOf(maxV)];
   const minCat = CATEGORIES[vals.indexOf(minV)];
 
-  document.getElementById('insightStrong').textContent = maxCat.name.split(' ')[0];
+  // Second word = the era keyword (ЭНЕРГИИ, БЛИЗОСТИ…)
+  const keyword = cat => cat.name.split(' ')[1] || cat.name;
+
+  document.getElementById('insightStrong').textContent = keyword(maxCat);
   document.getElementById('insightStrongScore').textContent = `${maxCat.emoji} ${maxV}/10`;
 
-  document.getElementById('insightWeak').textContent = minCat.name.split(' ')[0];
+  document.getElementById('insightWeak').textContent = keyword(minCat);
   document.getElementById('insightWeakScore').textContent = `${minCat.emoji} ${minV}/10`;
 
-  // Balance score: 100% = all equal, lower = more uneven
-  const mean = avg;
-  const variance = vals.reduce((sum, v) => sum + Math.pow(v - mean, 2), 0) / vals.length;
-  const stdDev = Math.sqrt(variance);
-  const balanceScore = Math.max(0, Math.round((1 - stdDev / 4.5) * 100));
-  document.getElementById('insightBalance').textContent = balanceScore + '%';
+  const variance = vals.reduce((s, v) => s + Math.pow(v - avg, 2), 0) / vals.length;
+  const stdDev   = Math.sqrt(variance);
+  const balance  = Math.max(0, Math.round((1 - stdDev / 4.5) * 100));
+  document.getElementById('insightBalance').textContent = balance + '%';
 }
 
-// ─── CANVAS / RADAR ──────────────────────────────────────────────────────────
+// ─── CANVAS / RADAR ───────────────────────────────────────────────────────────
 const canvas = document.getElementById('radar');
-const ctx = canvas.getContext('2d');
+const ctx    = canvas.getContext('2d');
 
 function resizeCanvas() {
   const wrap = document.getElementById('canvasWrap');
   const size = wrap.clientWidth;
-  const dpr = window.devicePixelRatio || 1;
-  canvas.width = size * dpr;
+  if (!size) return;
+  const dpr  = window.devicePixelRatio || 1;
+  canvas.width  = size * dpr;
   canvas.height = size * dpr;
-  canvas.style.width = size + 'px';
+  canvas.style.width  = size + 'px';
   canvas.style.height = size + 'px';
-  ctx.scale(dpr, dpr);
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   drawRadar();
 }
 
@@ -761,206 +795,111 @@ function scheduleAnimation() {
 }
 
 function animateRadar() {
-  let allDone = true;
+  let done = true;
   CATEGORIES.forEach(c => {
     const diff = animTarget[c.id] - animCurrent[c.id];
     if (Math.abs(diff) < 0.02) {
       animCurrent[c.id] = animTarget[c.id];
     } else {
       animCurrent[c.id] += diff * 0.18;
-      allDone = false;
+      done = false;
     }
   });
-
   drawRadar();
-
-  if (allDone) {
-    animFrame = null;
-  } else {
-    animFrame = requestAnimationFrame(animateRadar);
-  }
+  animFrame = done ? null : requestAnimationFrame(animateRadar);
 }
 
 function drawRadar() {
   const wrap = document.getElementById('canvasWrap');
   const size = wrap.clientWidth;
-  const cx = size / 2;
-  const cy = size / 2;
-  const isMobile = size < 340;
-  const labelFontSize = isMobile ? 9 : (size < 420 ? 10 : 12);
-  const maxR = size * 0.35;
-  const N = CATEGORIES.length;
+  if (!size) return;
+
+  const cx   = size / 2;
+  const cy   = size / 2;
+  const maxR = size * 0.34;
+  const N    = CATEGORIES.length;
+  const isTiny = size < 320;
+  const labelFontSize = isTiny ? 9 : size < 420 ? 10 : 12;
 
   ctx.clearRect(0, 0, size, size);
 
-  function angleFor(i) {
-    return (Math.PI * 2 * i / N) - Math.PI / 2;
-  }
+  const angle = i => (Math.PI * 2 * i / N) - Math.PI / 2;
+  const polar = (r, a) => ({ x: cx + r * Math.cos(a), y: cy + r * Math.sin(a) });
 
-  function polarToXY(r, angle) {
-    return { x: cx + r * Math.cos(angle), y: cy + r * Math.sin(angle) };
-  }
-
-  // ── Grid rings ──
-  const rings = [2, 4, 6, 8, 10];
-  rings.forEach(ring => {
+  // Grid rings
+  [2, 4, 6, 8, 10].forEach(ring => {
     ctx.beginPath();
     for (let i = 0; i <= N; i++) {
-      const a = angleFor(i % N);
-      const r = (ring / 10) * maxR;
-      const p = polarToXY(r, a);
+      const p = polar((ring / 10) * maxR, angle(i % N));
       i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y);
     }
     ctx.closePath();
     ctx.strokeStyle = 'rgba(255,255,255,0.07)';
-    ctx.lineWidth = 1;
+    ctx.lineWidth   = 1;
     ctx.stroke();
 
-    // Ring label
-    ctx.fillStyle = 'rgba(255,255,255,0.2)';
-    ctx.font = `${labelFontSize - 1}px Inter, sans-serif`;
-    ctx.textAlign = 'center';
-    ctx.fillText(ring, cx + 4, cy - (ring / 10) * maxR + 3);
+    ctx.fillStyle   = 'rgba(255,255,255,0.2)';
+    ctx.font        = `${labelFontSize - 1}px Inter, sans-serif`;
+    ctx.textAlign   = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(ring, cx + 4, cy - (ring / 10) * maxR - 4);
   });
 
-  // ── Axis lines ──
+  // Axis lines
   CATEGORIES.forEach((_, i) => {
-    const a = angleFor(i);
-    const p = polarToXY(maxR, a);
+    const p = polar(maxR, angle(i));
     ctx.beginPath();
     ctx.moveTo(cx, cy);
     ctx.lineTo(p.x, p.y);
     ctx.strokeStyle = 'rgba(255,255,255,0.08)';
-    ctx.lineWidth = 1;
+    ctx.lineWidth   = 1;
     ctx.stroke();
   });
 
-  // ── Data polygon ──
+  // Data polygon
   ctx.beginPath();
   CATEGORIES.forEach((cat, i) => {
-    const a = angleFor(i);
-    const v = animCurrent[cat.id] || values[cat.id];
-    const r = (v / 10) * maxR;
-    const p = polarToXY(r, a);
+    const v = animCurrent[cat.id] ?? values[cat.id];
+    const p = polar((v / 10) * maxR, angle(i));
     i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y);
   });
   ctx.closePath();
-  ctx.fillStyle = 'rgba(230, 57, 70, 0.18)';
+  ctx.fillStyle   = 'rgba(230,57,70,0.18)';
   ctx.fill();
   ctx.strokeStyle = '#e63946';
-  ctx.lineWidth = 2;
-  ctx.lineJoin = 'round';
+  ctx.lineWidth   = 2;
+  ctx.lineJoin    = 'round';
   ctx.stroke();
 
-  // ── Data points ──
+  // Data points
   CATEGORIES.forEach((cat, i) => {
-    const a = angleFor(i);
-    const v = animCurrent[cat.id] || values[cat.id];
-    const r = (v / 10) * maxR;
-    const p = polarToXY(r, a);
-
+    const v = animCurrent[cat.id] ?? values[cat.id];
+    const p = polar((v / 10) * maxR, angle(i));
     ctx.beginPath();
     ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
-    ctx.fillStyle = '#e63946';
+    ctx.fillStyle   = '#e63946';
     ctx.fill();
     ctx.strokeStyle = '#fff';
-    ctx.lineWidth = 1.5;
+    ctx.lineWidth   = 1.5;
     ctx.stroke();
   });
 
-  // ── Axis labels ──
-  const labelPad = isMobile ? 18 : 22;
+  // Axis labels
+  const pad = isTiny ? 16 : 22;
   CATEGORIES.forEach((cat, i) => {
-    const a = angleFor(i);
-    const p = polarToXY(maxR + labelPad, a);
-
-    ctx.font = `500 ${labelFontSize}px Inter, sans-serif`;
-    ctx.fillStyle = 'rgba(255,255,255,0.85)';
-
-    // Align by position
+    const a = angle(i);
+    const p = polar(maxR + pad, a);
     const eps = 0.05;
-    if (Math.cos(a) > eps) ctx.textAlign = 'left';
-    else if (Math.cos(a) < -eps) ctx.textAlign = 'right';
-    else ctx.textAlign = 'center';
 
-    // Vertical baseline
-    if (Math.sin(a) < -eps) ctx.textBaseline = 'bottom';
-    else if (Math.sin(a) > eps) ctx.textBaseline = 'top';
-    else ctx.textBaseline = 'middle';
+    ctx.font        = `600 ${labelFontSize}px Inter, sans-serif`;
+    ctx.fillStyle   = 'rgba(255,255,255,0.85)';
+    ctx.textAlign   = Math.cos(a) > eps ? 'left' : Math.cos(a) < -eps ? 'right' : 'center';
+    ctx.textBaseline = Math.sin(a) < -eps ? 'bottom' : Math.sin(a) > eps ? 'top' : 'middle';
 
-    // Draw label: emoji + short name
-    const shortName = cat.name.split(' ')[0];
-    const label = `${cat.emoji} ${shortName}`;
-    ctx.fillText(label, p.x, p.y);
+    // Show emoji + era keyword
+    const keyword = cat.name.split(' ')[1] || cat.name;
+    ctx.fillText(`${cat.emoji} ${keyword}`, p.x, p.y);
   });
-}
-
-// ─── PDF EXPORT ───────────────────────────────────────────────────────────────
-async function exportPDF() {
-  const btn = document.getElementById('btnPdf');
-  btn.classList.add('loading');
-  btn.textContent = 'Создание PDF...';
-
-  try {
-    // Capture full app
-    const appEl = document.getElementById('app');
-    const canvas = await html2canvas(appEl, {
-      backgroundColor: '#0a0a0a',
-      scale: 2,
-      useCORS: true,
-      logging: false,
-    });
-
-    const imgData = canvas.toDataURL('image/png');
-
-    // Build simple PDF manually (no library needed for basic one-page PDF)
-    const img = new Image();
-    img.onload = () => {
-      const pw = 297; // A4 landscape mm
-      const ph = 210;
-      const iw = img.width;
-      const ih = img.height;
-
-      const ratio = Math.min(pw / iw * 3.78, ph / ih * 3.78);
-      const fw = iw * ratio;
-      const fh = ih * ratio;
-
-      // Open print dialog with image
-      const printWin = window.open('', '_blank');
-      printWin.document.write(`
-        <!DOCTYPE html><html><head>
-        <meta charset="UTF-8">
-        <title>Колесо Баланса</title>
-        <style>
-          @page { size: A4 landscape; margin: 0; }
-          body { margin: 0; padding: 0; background: #0a0a0a; display:flex; align-items:center; justify-content:center; height:100vh; }
-          img { max-width: 100%; max-height: 100vh; object-fit: contain; }
-        </style></head>
-        <body><img src="${imgData}"></body></html>
-      `);
-      printWin.document.close();
-      printWin.focus();
-      setTimeout(() => {
-        printWin.print();
-        printWin.close();
-      }, 500);
-    };
-    img.src = imgData;
-
-  } catch(e) {
-    console.error('PDF export failed:', e);
-    alert('Не удалось создать PDF. Попробуйте снова.');
-  }
-
-  btn.classList.remove('loading');
-  btn.innerHTML = `
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-      <polyline points="7 10 12 15 17 10"/>
-      <line x1="12" y1="15" x2="12" y2="3"/>
-    </svg>
-    Сохранить PDF
-  `;
 }
 
 // ─── INIT ─────────────────────────────────────────────────────────────────────
@@ -968,52 +907,17 @@ function init() {
   values = loadValues();
   CATEGORIES.forEach(c => {
     animCurrent[c.id] = values[c.id];
-    animTarget[c.id] = values[c.id];
+    animTarget[c.id]  = values[c.id];
   });
 
   buildForm();
   updateStats();
   resizeCanvas();
 
-  // ResizeObserver for responsive chart
-  const ro = new ResizeObserver(() => resizeCanvas());
-  ro.observe(document.getElementById('canvasWrap'));
+  new ResizeObserver(() => resizeCanvas()).observe(document.getElementById('canvasWrap'));
 }
 
-// Move PDF button wrap into fixed position on mobile
-function checkMobilePdfBtn() {
-  const wrap = document.querySelector('.btn-pdf-wrap');
-  if (!wrap) return;
-  if (window.innerWidth <= 767) {
-    if (!document.getElementById('fixedPdfWrap')) {
-      const fixed = document.createElement('div');
-      fixed.id = 'fixedPdfWrap';
-      fixed.className = 'btn-pdf-wrap';
-      fixed.style.cssText = `
-        position: fixed; bottom: 0; left: 0; right: 0;
-        padding: 12px 16px;
-        padding-bottom: calc(12px + env(safe-area-inset-bottom));
-        background: linear-gradient(to top, #0a0a0a 60%, transparent);
-        z-index: 100;
-      `;
-      fixed.appendChild(document.getElementById('btnPdf').cloneNode(true));
-      document.body.appendChild(fixed);
-      fixed.querySelector('.btn-pdf').addEventListener('click', exportPDF);
-      document.getElementById('btnPdf').style.visibility = 'hidden';
-    }
-  } else {
-    const fixed = document.getElementById('fixedPdfWrap');
-    if (fixed) fixed.remove();
-    const btn = document.getElementById('btnPdf');
-    if (btn) btn.style.visibility = '';
-  }
-}
-
-window.addEventListener('resize', checkMobilePdfBtn);
-document.addEventListener('DOMContentLoaded', () => {
-  init();
-  checkMobilePdfBtn();
-});
+document.addEventListener('DOMContentLoaded', init);
 </script>
 </body>
 </html>
